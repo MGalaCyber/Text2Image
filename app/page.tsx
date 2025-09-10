@@ -27,14 +27,15 @@ import {
 import {
   LoaderPinwheel,
   Download,
-  Copy
+  Copy,
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -48,7 +49,16 @@ const FormSchema = z.object({
 export default function Home() {
   const [isLoading, setLoading] = useState(false)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [visitor, setVisitor] = useState<string | null>(null)
   const [imageLoaded, setImageLoaded] = useState(false)
+
+  useEffect(() => {
+    fetch(`https://visitorcounter.galaxd.com/api/hit/${process.env.NEXT_PUBLIC_VISITOR_TRACKING_ID}`).then((response) => response.json()).then(data => {
+      const count = `${data.data.today.toLocaleString()} • ${data.data.weekly.toLocaleString()} • ${data.data.monthly.toLocaleString()} • ${data.data.yearly.toLocaleString()} • ${data.data.total.toLocaleString()}`
+      setVisitor(count)
+      console.log(data)
+    })
+  }, [])
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -82,14 +92,17 @@ export default function Home() {
       const result = await res.json()
 
       // Preload image
-      const img = new window.Image()
-      img.src = result?.data?.media?.previewUrl
-      img.onload = () => {
-        setImageUrl(result?.data?.media?.previewUrl)
-        setLoading(false)
-        setImageLoaded(false)
-        toast.success("Image generated successfully!")
+      // const img = new window.Image()
+      // img.src = result?.data?.media?.previewUrl
+      // img.onload = () => {
+      // }
+      if (!result.status) {
+        toast.error("Failed to generate image!")
       }
+      setImageUrl(result?.data?.media?.previewUrl)
+      setLoading(false)
+      setImageLoaded(false)
+      toast.success("Image generated successfully!")
 
     } catch (err: any) {
       toast.error(err.message || "Unexpected error")
@@ -109,7 +122,7 @@ export default function Home() {
         <Card className="w-96 lg:w-7xl mt-10 mb-10 rounded-none bg-white/5 backdrop-blur-md border border-white/50 shadow-lg">
           <CardHeader>
             <CardTitle className="text-3xl font-bold">Text To Image</CardTitle>
-            <CardDescription>Card Description</CardDescription>
+            <CardDescription>A simple and powerful AI Text-to-Image Generator</CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Form {...form}>
@@ -191,7 +204,7 @@ export default function Home() {
                 )}
               </form>
             </Form>
-            <div className="relative rounded-none border border-white/50 bg-muted/50 flex items-center justify-center h-[450px] overflow-hidden">
+            <div className="relative rounded-none border border-white/50 bg-muted/50 flex items-center justify-center h-[400px] overflow-hidden">
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-neutral-950">
                   <Skeleton className="h-full w-full rounded-none absolute" />
@@ -249,7 +262,12 @@ export default function Home() {
               {!isLoading && !imageUrl && (<span className="text-muted-foreground">RESULT</span>)}
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="w-full flex flex-col lg:flex-row items-center justify-between gap-2">
+            <p className="text-sm text-muted-foreground">Powered by <a href="https://api.galaxd.com" target="_blank" rel="noopener noreferrer" className="underline">GalaXD API</a></p>
+            <div className="text-sm text-muted-foreground flex items-center gap-2">
+              <Eye className="h-4 w-4"/>
+              <p>{visitor}</p>
+            </div>
           </CardFooter>
         </Card>
       </div>

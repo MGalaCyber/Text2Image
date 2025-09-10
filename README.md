@@ -1,5 +1,7 @@
 # 🖼️ Text 2 Image Generator
 
+![Preview](./public/preview.png)
+
 A simple and powerful **AI Text-to-Image Generator** built with **Next.js App Router**.
 This tool allows users to generate high-quality images from text prompts with support for multiple models and versions.
 
@@ -22,6 +24,7 @@ Create a `.env` file in the root directory and add your Supabase credentials:
 
 ```env
 UNIVERSE_API_KEY=YOUR_API_KEY_HERE
+NEXT_PUBLIC_VISITOR_TRACKING_ID=YOUR_ID_HERE
 ```
 
 ---
@@ -30,6 +33,8 @@ UNIVERSE_API_KEY=YOUR_API_KEY_HERE
 You can find them in your Universe API dashboard:
 - 🔗 [Go to Dashboard → Settings](https://api.galaxd.com/dashboard)
     - UNIVERSE_API_KEY → Select `Settings > API Key > Copy`
+- 🔗 [Go to Visitor Counter](https://visitorcounter.galaxd.com/)
+    - NEXT_PUBLIC_VISITOR_TRACKING_ID → Input whitelist domain > Generate
 
 ---
 
