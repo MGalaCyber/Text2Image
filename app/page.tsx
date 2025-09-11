@@ -97,7 +97,8 @@ export default function Home() {
         toast.error("Failed to generate image!")
         return;
       }
-      setImageUrl(result?.data?.media?.previewUrl)
+      const previewUrl = result?.data?.media?.previewUrl || result?.data?.previewUrl;
+      setImageUrl(previewUrl)
       toast.success("Image generated successfully!")
 
     } catch (err: any) {
@@ -194,7 +195,7 @@ export default function Home() {
                     <LoaderPinwheel className="mr-2 h-4 w-4 animate-spin" />
                     Generating...
                   </Button>
-                ) : !imageLoaded ? (
+                ) : imageUrl && !imageLoaded ? (
                   <Button className="mt-4 w-full rounded-none" disabled>
                     <LoaderPinwheel className="mr-2 h-4 w-4 animate-spin" />
                     Load Image...
@@ -223,9 +224,8 @@ export default function Home() {
                     }`}
                     unoptimized
                     loader={({ src }) => src}
-                    onLoad={() => {
-                      setImageLoaded(true)
-                    }}
+                    onLoad={() => { setImageLoaded(true) }}
+                    onError={() => { setImageLoaded(true) }}
                   />
                   {!imageLoaded && (
                     <Skeleton className="h-full w-full rounded-none absolute" />
