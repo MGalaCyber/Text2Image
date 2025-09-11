@@ -72,7 +72,7 @@ export default function Home() {
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       setLoading(true)
-      setImageLoaded(true)
+      setImageLoaded(false)
 
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -84,31 +84,26 @@ export default function Home() {
 
       if (!res.ok) {
         setLoading(false)
-        setImageLoaded(false)
+        setImageLoaded(true)
         const err = await res.json()
         throw new Error(err.error || "Something went wrong!")
       }
 
       const result = await res.json()
 
-      // Preload image
-      // const img = new window.Image()
-      // img.src = result?.data?.media?.previewUrl
-      // img.onload = () => {
-      // }
       if (!result.status) {
+        setLoading(false)
+        setImageLoaded(true)
         toast.error("Failed to generate image!")
+        return;
       }
       setImageUrl(result?.data?.media?.previewUrl)
-      setLoading(false)
-      setImageLoaded(false)
       toast.success("Image generated successfully!")
 
     } catch (err: any) {
       toast.error(err.message || "Unexpected error")
     } finally {
       setLoading(false)
-      setImageLoaded(false)
     }
   }
 
@@ -121,7 +116,7 @@ export default function Home() {
       <div className="relative z-10">
         <Card className="w-96 lg:w-7xl mt-10 mb-10 rounded-none bg-white/5 backdrop-blur-md border border-white/50 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-3xl font-bold">Text To Image</CardTitle>
+            <CardTitle className="text-3xl font-bold">AI Image Generator</CardTitle>
             <CardDescription>A simple and powerful AI Text-to-Image Generator</CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -194,10 +189,15 @@ export default function Home() {
                     />
                   )}
                 </div>
-                {isLoading && imageLoaded ? (
+                {isLoading ? (
                   <Button className="mt-4 w-full rounded-none" disabled>
                     <LoaderPinwheel className="mr-2 h-4 w-4 animate-spin" />
                     Generating...
+                  </Button>
+                ) : !imageLoaded ? (
+                  <Button className="mt-4 w-full rounded-none" disabled>
+                    <LoaderPinwheel className="mr-2 h-4 w-4 animate-spin" />
+                    Load Image...
                   </Button>
                 ) : (
                   <Button className="mt-4 w-full rounded-none" type="submit">Generate</Button>
@@ -221,41 +221,44 @@ export default function Home() {
                     className={`w-full h-full object-cover rounded-none transition-opacity duration-500 ${
                       imageLoaded ? "opacity-100" : "opacity-0"
                     }`}
+                    unoptimized
+                    loader={({ src }) => src}
                     onLoad={() => {
                       setImageLoaded(true)
-                      setLoading(false)
                     }}
                   />
                   {!imageLoaded && (
                     <Skeleton className="h-full w-full rounded-none absolute" />
                   )}
-                  <div className="absolute top-2 right-2 flex gap-2">
-                    {/* tombol download */}
-                    <Button
-                      size="icon"
-                      className="rounded-none"
-                      onClick={() => {
-                        const link = document.createElement("a")
-                        link.href = imageUrl
-                        link.download = "generated-image.png"
-                        link.click()
-                      }}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
+                  {!isLoading && (
+                    <div className="absolute top-2 right-2 flex gap-2">
+                      {/* tombol download */}
+                      <Button
+                        size="icon"
+                        className="rounded-none"
+                        onClick={() => {
+                          const link = document.createElement("a")
+                          link.href = imageUrl
+                          link.download = "generated-image.png"
+                          link.click()
+                        }}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
 
-                    {/* tombol copy */}
-                    <Button
-                      size="icon"
-                      className="rounded-none"
-                      onClick={() => {
-                        navigator.clipboard.writeText(imageUrl)
-                        toast.success("Image URL copied!")
-                      }}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
+                      {/* tombol copy */}
+                      <Button
+                        size="icon"
+                        className="rounded-none"
+                        onClick={() => {
+                          navigator.clipboard.writeText(imageUrl)
+                          toast.success("Image URL copied!")
+                        }}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </>
               )}
 

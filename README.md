@@ -1,4 +1,4 @@
-# 🖼️ Text 2 Image Generator
+# 🖼️ Text to Image Generator
 
 ![Preview](./public/preview.png)
 
@@ -20,7 +20,7 @@ This tool allows users to generate high-quality images from text prompts with su
 
 ## 🛠️ Environment Configuration
 
-Create a `.env` file in the root directory and add your Supabase credentials:
+Create a `.env` file in the root directory and add your Text2Img credentials:
 
 ```env
 UNIVERSE_API_KEY=YOUR_API_KEY_HERE
